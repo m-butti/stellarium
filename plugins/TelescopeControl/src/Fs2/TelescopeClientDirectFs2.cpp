@@ -51,47 +51,24 @@ TelescopeClientDirectFs2::TelescopeClientDirectFs2 (const QString &name, const Q
 {
 	interpolatedPosition.reset();
 
-	//Extract parameters. Two formats are accepted:
-	// Serial:  "serial_port_name:time_delay"          e.g. "/dev/ttyS0:500000"
-	// Network: "host_name:tcp_port:time_delay"        e.g. "192.168.1.5:4030:500000"
-	//The network form (FS2 protocol over TCP) is distinguished by having
-	//two colons instead of one.
-	static const QRegularExpression tcpParamRx("^([^:]+):(\\d+):(\\d+)$");
+	//Extract parameters
+	//Format: "serial_port_name:time_delay"          e.g. "/dev/ttyS0:500000"
 	static const QRegularExpression serialParamRx("^([^:]*):(\\d+)$");
-	QRegularExpressionMatch tcpMatch = tcpParamRx.match(parameters);
-
+	QRegularExpressionMatch serialMatch = serialParamRx.match(parameters);
 	QString serialDeviceName;
-	QString hostName;
-	int tcpPort = 0;
-	bool useNetwork = false;
-
-	if (tcpMatch.hasMatch())
+	if (serialMatch.hasMatch())
 	{
-		useNetwork = true;
-		hostName   = tcpMatch.captured(1).trimmed();
-		tcpPort    = tcpMatch.captured(2).toInt();
-		time_delay = tcpMatch.captured(3).toInt();
+		// This RegExp only matches valid integers
+		serialDeviceName = serialMatch.captured(1).trimmed();
+		time_delay       = serialMatch.captured(2).toInt();
 	}
 	else
 	{
-		QRegularExpressionMatch serialMatch = serialParamRx.match(parameters);
-		if (serialMatch.hasMatch())
-		{
-			// This RegExp only matches valid integers
-			serialDeviceName = serialMatch.captured(1).trimmed();
-			time_delay       = serialMatch.captured(2).toInt();
-		}
-		else
-		{
-			qCWarning(Telescopes) << "ERROR creating TelescopeClientDirectFs2: invalid parameters.";
-			return;
-		}
+		qCWarning(Telescopes) << "ERROR creating TelescopeClientDirectFs2: invalid parameters.";
+		return;
 	}
 
-	if (useNetwork)
-		qCDebug(Telescopes) << "TelescopeClientDirectFs2 parameters: host, port, time_delay:" << hostName << tcpPort << time_delay;
-	else
-		qCDebug(Telescopes) << "TelescopeClientDirectFs2 parameters: port, time_delay:" << serialDeviceName << time_delay;
+	qCDebug(Telescopes) << "TelescopeClientDirectFs2 parameters: port, time_delay:" << serialDeviceName << time_delay;
 
 	//Validation: Time delay
 	if (time_delay <= 0 || time_delay > 10000000)
@@ -103,36 +80,21 @@ TelescopeClientDirectFs2::TelescopeClientDirectFs2 (const QString &name, const Q
 	//end_of_timeout = -0x8000000000000000LL;
 
 	//Try to establish a connection to the telescope
-	if (useNetwork)
-	{
-		Fs2TcpConnection *connection = new Fs2TcpConnection(*this, qPrintable(hostName), tcpPort);
-		fs2 = connection;
-		if (connection->isClosed())
-		{
-			qCWarning(Telescopes) << "ERROR creating TelescopeClientDirectFs2: cannot connect to" << hostName << "port" << tcpPort;
-			return;
-		}
-		// fs2 will be deleted in the destructor of Server
-		addConnection(connection);
-	}
-	else
-	{
-		#ifdef Q_OS_WIN
-		if(serialDeviceName.right(serialDeviceName.size() - 3).toInt() > 9)
-			serialDeviceName = "\\\\.\\" + serialDeviceName;//"\\.\COMxx", not sure if it will work
-		#endif //Q_OS_WIN
+	#ifdef Q_OS_WIN
+	if(serialDeviceName.right(serialDeviceName.size() - 3).toInt() > 9)
+		serialDeviceName = "\\\\.\\" + serialDeviceName;//"\\.\COMxx", not sure if it will work
+	#endif //Q_OS_WIN
 
-		Fs2SerialConnection *connection = new Fs2SerialConnection(*this, qPrintable(serialDeviceName));
-		fs2 = connection;
-		if (connection->isClosed())
-		{
-			qCWarning(Telescopes) << "ERROR creating TelescopeClientDirectFs2: cannot open serial device" << serialDeviceName;
-			return;
-		}
-		// fs2 will be deleted in the destructor of Server
-		// TODO: GZ2024: Server destructor is empty. Who deletes fs2 in version 24.2? Someone please clarify and fix documentation, then delete this note.
-		addConnection(connection);
+	Fs2SerialConnection *connection = new Fs2SerialConnection(*this, qPrintable(serialDeviceName));
+	if (connection->isClosed())
+	{
+		qCWarning(Telescopes) << "ERROR creating TelescopeClientDirectFs2: cannot open serial device" << serialDeviceName;
+		delete connection;
+		return;
 	}
+	fs2 = connection;
+	// Server owns the connection and deletes it with its socket list in Server::SocketList::clear().
+	addConnection(connection);
 	
 	long_format_used = false; // unknown
 	last_ra = 0;
@@ -200,8 +162,7 @@ void TelescopeClientDirectFs2::telescopeAbortSlew()
 	// that was in flight. That would leave queue_get_position stuck false and
 	// stop the position polling entirely. Re-arm it, but with a short delay so
 	// that answers to the discarded queries can arrive and be ignored before
-	// the next query is sent. Without this the client goes silent and a
-	// networked FS2 server drops the connection on its read timeout.
+	// the next query is sent.
 	queue_get_position = true;
 	next_pos_time = GetNow() + 500000; // 0.5 s
 }
@@ -247,9 +208,8 @@ void TelescopeClientDirectFs2::communicationResetReceived(void)
 #endif
 
 	// A protocol-level reset (e.g. a timeout while waiting for an answer)
-	// must not tear down the transport itself: the serial path never did
-	// (closeAcceptedConnections() only touches TCP sockets), so neither
-	// should the TCP path. We simply re-synchronise and keep the link open.
+	// must not tear down the serial port itself. We simply re-synchronise
+	// and keep the link open.
 	answers_received = false;
 }
 

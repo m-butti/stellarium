@@ -1842,7 +1842,8 @@ const QString TelescopeControl::TELESCOPE_SERVER_PATH = QString("/%1");
 const QStringList TelescopeControl::EMBEDDED_TELESCOPE_SERVERS = {
 	"TelescopeServerDummy",
 	"TelescopeServerLx200",
-	"TelescopeServerNexStar"};
+	"TelescopeServerNexStar",
+	"TelescopeServerFs2"};
 
 void TelescopeControl::translations()
 {

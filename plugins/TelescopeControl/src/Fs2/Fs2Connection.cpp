@@ -7,8 +7,6 @@ It also contains sample server classes (dummy, Astro Electronic FS2).
 Author and Copyright of this file and of the stellarium telescope library:
 Johannes Gajdosik, 2006
 
-TCP transport support added by Rumen Bogdanovski, 2026.
-
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
@@ -206,9 +204,7 @@ void Fs2ConnectionImpl<Transport>::dataReceived(const char *&p, const char *read
 		// command that was already discarded - typically the answer to a
 		// position query that was dropped by sendAbort(). Ignore them instead
 		// of forcing a full communication reset: the reset imposes a multi-
-		// second pause before the next command is sent, which is long enough
-		// for a networked FS2 server to hit its read timeout and close the
-		// connection. A genuine desync is still caught later, when the answer
+		// second pause before the next command is sent. A genuine desync is still caught later, when the answer
 		// to an actual queued command fails to parse.
 		#ifdef DEBUG4
 		*log_file << Now()
@@ -385,6 +381,5 @@ void Fs2ConnectionImpl<Transport>::sendAbort()
 	//          << StelUtils::getEndLineChar();
 }
 
-// Explicitly instantiate the two transports we support: serial and TCP/IP.
+// Explicitly instantiate the serial transport.
 template class Fs2ConnectionImpl<SerialPort>;
-template class Fs2ConnectionImpl<TcpConnection>;
