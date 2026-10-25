@@ -7,6 +7,8 @@ It also contains sample server classes (dummy, Astro Electronic FS2).
 Author and Copyright of this file and of the stellarium telescope library:
 Johannes Gajdosik, 2006
 
+Astro Electronic FS2 support by Michael Butti, 2026.
+
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2

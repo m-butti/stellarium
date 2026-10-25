@@ -1,24 +1,26 @@
 /*
  * Stellarium Telescope Control Plug-in
- * 
+ *
  * Copyright (C) 2009 Bogdan Marinov (this file,
  * reusing code written by Johannes Gajdosik in 2006)
- * 
+ *
+ * Astro Electronic FS2 support by Michael Butti, 2026.
+ *
  * Johannes Gajdosik wrote in 2006 the original telescope control feature
  * as a core module of Stellarium. In 2009 it was significantly extended with
  * GUI features and later split as an external plug-in module by Bogdan Marinov.
- * 
- * 
+ *
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Suite 500, Boston, MA  02110-1335, USA.
@@ -50,11 +52,11 @@ public:
 	{
 		//hangup();
 	}
-	
+
 	//======================================================================
 	// Methods inherited from TelescopeClient
 	bool isConnected(void) const override;
-	
+
 	//======================================================================
 	// Methods inherited from Server
 	void step(long long int timeout_micros) override;
@@ -62,7 +64,7 @@ public:
 	void longFormatUsedReceived(bool long_format);
 	void raReceived(unsigned int ra_int);
 	void decReceived(unsigned int dec_int);
-	
+
 private:
 	//======================================================================
 	// Methods inherited from TelescopeClient
@@ -75,18 +77,18 @@ private:
 	void telescopeAbortSlew() override;
 	bool isAbortSlewSupported() const override {return true;}
 	bool isInitialized(void) const override;
-	
+
 	//======================================================================
 	// Methods inherited from Server
 	void sendPosition(unsigned int ra_int, int dec_int, int status);
 	//TODO: Find out if this method is needed. It's called by Connection.
 	void gotoReceived(unsigned int ra_int, int dec_int) override;
 	void syncReceived(unsigned int ra_int, int dec_int) override;
-	
+
 private:
 	void hangup(void);
 	int time_delay;
-	
+
 	InterpolatedPosition interpolatedPosition;
 	bool hasKnownPosition(void) const override
 	{
@@ -94,13 +96,13 @@ private:
 	}
 
 	TelescopeControl::Equinox equinox;
-	
+
 	//======================================================================
 	// Members inherited from ServerFs2
 	Fs2Connection *fs2;
 	bool long_format_used;
 	bool answers_received;
-	
+
 	unsigned int last_ra;
 	bool queue_get_position;
 	long long int next_pos_time;

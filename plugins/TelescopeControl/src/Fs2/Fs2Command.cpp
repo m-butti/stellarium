@@ -7,6 +7,8 @@ It also contains sample server classes (dummy, Astro Electronic FS2).
 Author and Copyright of this file and of the stellarium telescope library:
 Johannes Gajdosik, 2006
 
+Astro Electronic FS2 support by Michael Butti, 2026.
+
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
@@ -101,10 +103,10 @@ int Fs2CommandSetSelectedRa::readAnswerFromBuffer(const char *&buff,
 {
 	if (buff < end && *buff=='#')
 		buff++; // ignore silly byte
-	
+
 	if (buff >= end)
 		return 0;
-	
+
 	switch (buff[0])
 	{
 		case '0':
@@ -116,7 +118,7 @@ int Fs2CommandSetSelectedRa::readAnswerFromBuffer(const char *&buff,
 			#endif
 			buff++;
 			break;
-		
+
 		case '1':
 			#ifdef DEBUG4
 			*log_file << Now()
@@ -126,7 +128,7 @@ int Fs2CommandSetSelectedRa::readAnswerFromBuffer(const char *&buff,
 			#endif
 			buff++;
 			break;
-		
+
 		default:
 			#ifdef DEBUG4
 			*log_file << Now()
@@ -136,7 +138,7 @@ int Fs2CommandSetSelectedRa::readAnswerFromBuffer(const char *&buff,
 			#endif
 			break;
 	}
-	
+
 	return 1;
 }
 
@@ -151,7 +153,7 @@ bool Fs2CommandSetSelectedDec::writeCommandToBuffer(char *&p, char *end)
 {
 	if (end-p < 14) // FS2 patch needs this number updated (+1 for added space character)
 		return false;
-	
+
 	  // set object dec:
 	*p++ = ':';
 	*p++ = 'S';
@@ -186,10 +188,10 @@ int Fs2CommandSetSelectedDec::readAnswerFromBuffer(const char *&buff,
 {
 	if (buff < end && *buff=='#')
 		buff++; // ignore silly byte
-	
+
 	if (buff >= end)
 		return 0;
-	
+
 	switch (buff[0])
 	{
 		case '0':
@@ -201,7 +203,7 @@ int Fs2CommandSetSelectedDec::readAnswerFromBuffer(const char *&buff,
 			#endif
 			buff++;
 			break;
-		
+
 		case '1':
 			#ifdef DEBUG4
 			*log_file << Now()
@@ -211,7 +213,7 @@ int Fs2CommandSetSelectedDec::readAnswerFromBuffer(const char *&buff,
 			#endif
 			buff++;
 			break;
-		
+
 		default:
 			#ifdef DEBUG4
 			*log_file << Now()
@@ -221,7 +223,7 @@ int Fs2CommandSetSelectedDec::readAnswerFromBuffer(const char *&buff,
 			#endif
 			break;
 	}
-	
+
 	return 1;
 }
 
@@ -238,7 +240,7 @@ bool Fs2CommandGotoSelected::writeCommandToBuffer(char *&p, char *end)
 {
 	if (end-p < 4)
 		return false;
-	
+
 	  // slew to current object coordinates
 	*p++ = ':';
 	*p++ = 'M';
@@ -253,17 +255,17 @@ int Fs2CommandGotoSelected::readAnswerFromBuffer(const char *&buff,
 {
 	if (buff < end && *buff=='#')
 		buff++; // ignore silly byte
-	
+
 	if (buff >= end)
 		return 0;
-	
+
 	const char *p = buff;
 	if (first_byte == 256)
 	{
 		first_byte = buff[0];
 		p++;
 	}
-	
+
 	switch (first_byte)
 	{
 		case '0':
@@ -275,7 +277,7 @@ int Fs2CommandGotoSelected::readAnswerFromBuffer(const char *&buff,
 			#endif
 			buff++;
 			return 1;
-		
+
 		case '1':
 		case '2':
 		{
@@ -294,7 +296,7 @@ int Fs2CommandGotoSelected::readAnswerFromBuffer(const char *&buff,
 				buff++;
 				return 0;
 			}
-			
+
 			for (;;p++)
 			{
 				if (p >= end)
@@ -317,7 +319,7 @@ int Fs2CommandGotoSelected::readAnswerFromBuffer(const char *&buff,
 			buff = p+1;
 			return 1;
 		}
-		
+
 		default:
 			#ifdef DEBUG4
 			*log_file << Now()
@@ -327,7 +329,7 @@ int Fs2CommandGotoSelected::readAnswerFromBuffer(const char *&buff,
 			#endif
 			break;
 	}
-	
+
 	return -1;
 }
 
@@ -412,7 +414,7 @@ bool Fs2CommandGetRa::writeCommandToBuffer(char *&p, char *end)
 {
 	if (end-p < 4) // FS2 has one less character than LX200 here
 		return false;
-	
+
 	  // get RA:
 	//*p++ = '#'; // FS2 does not like this prefix
 	*p++ = ':';
@@ -428,10 +430,10 @@ int Fs2CommandGetRa::readAnswerFromBuffer(const char *&buff,
 {
 	if (buff < end && *buff=='#')
 		buff++; // ignore silly byte
-		
+
 	if (end-buff < 8)
 		return 0;
-	
+
 	bool long_format = true;
 	int ra;
 	const char *p = buff;
@@ -448,7 +450,7 @@ int Fs2CommandGetRa::readAnswerFromBuffer(const char *&buff,
 		#endif
 		return -1;
 	}
-	
+
 	ra *=  6; ra += ((*p++) - '0');
 	ra *= 10; ra += ((*p++) - '0');
 	switch (*p++)
@@ -459,13 +461,13 @@ int Fs2CommandGetRa::readAnswerFromBuffer(const char *&buff,
 			if (end-buff < 9)
 				return 0;
 			break;
-		
+
 		case '.':
 			ra *= 10; ra += ((*p++) - '0');
 			ra *= 6;
 			long_format = false;
 			break;
-		
+
 		default:
 			*log_file << Now()
 			          << "Fs2CommandGetRa::readAnswerFromBuffer: "
@@ -473,7 +475,7 @@ int Fs2CommandGetRa::readAnswerFromBuffer(const char *&buff,
 				  << StelUtils::getEndLineChar();
 			return -1;
 	}
-	
+
 	if (*p++ != '#')
 	{
 		*log_file << Now()
@@ -482,7 +484,7 @@ int Fs2CommandGetRa::readAnswerFromBuffer(const char *&buff,
 			  << StelUtils::getEndLineChar();
 		return -1;
 	}
-	
+
 	#ifdef DEBUG4
 	*log_file << Now()
 	          << "Fs2CommandGetRa::readAnswerFromBuffer: "
@@ -496,7 +498,7 @@ int Fs2CommandGetRa::readAnswerFromBuffer(const char *&buff,
 	          << qSetFieldWidth(0) << qSetPadChar(' ')
 		  << StelUtils::getEndLineChar();
 	#endif
-	
+
 	buff = p;
 	server.longFormatUsedReceived(long_format);
 	server.raReceived(static_cast<unsigned int>(std::floor(ra * (4294967296.0/86400.0))));
@@ -515,7 +517,7 @@ bool Fs2CommandGetDec::writeCommandToBuffer(char *&p,char *end)
 {
 	if (end-p < 4) // FS2 has one less character than LX200 here
 		return false;
-	
+
 	  // get Dec:
 	//*p++ = '#'; // FS2 does not like this prefix
 	*p++ = ':';
@@ -531,10 +533,10 @@ int Fs2CommandGetDec::readAnswerFromBuffer(const char *&buff,
 {
 	if (buff < end && *buff=='#')
 		buff++; // ignore silly byte
-		
+
 	if (end-buff < 7)
 		return 0;
-		
+
 	bool long_format = true;
 	int dec;
 	const char *p = buff;
@@ -543,11 +545,11 @@ int Fs2CommandGetDec::readAnswerFromBuffer(const char *&buff,
 	{
 		case '+':
 			break;
-		
+
 		case '-':
 			sign_dec = true;
 			break;
-		
+
 		default:
 			#ifdef DEBUG4
 			*log_file << Now()
@@ -557,7 +559,7 @@ int Fs2CommandGetDec::readAnswerFromBuffer(const char *&buff,
 			#endif
 			return -1;
 	}
-	
+
 	dec = ((*p++) - '0');
 	dec *= 10; dec += ((*p++) - '0');
 	if (*p++ != (static_cast<char>(223)))
@@ -567,7 +569,7 @@ int Fs2CommandGetDec::readAnswerFromBuffer(const char *&buff,
 			     "error: degree sign expected" // not a star, really 0xDF
 			  << StelUtils::getEndLineChar();
 	}
-	
+
 	dec *=  6; dec += ((*p++) - '0');
 	dec *= 10; dec += ((*p++) - '0');
 	switch (*p++)
@@ -617,7 +619,7 @@ int Fs2CommandGetDec::readAnswerFromBuffer(const char *&buff,
 	          << qSetFieldWidth(0) << qSetPadChar(' ')
 		  << StelUtils::getEndLineChar();
 	#endif
-	
+
 	if (sign_dec)
 		dec = -dec;
 	buff = p;
@@ -630,5 +632,3 @@ void Fs2CommandGetDec::print(QTextStream &o) const
 {
 	o << "Fs2CommandGetDec";
 }
-
-

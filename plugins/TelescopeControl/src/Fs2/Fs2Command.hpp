@@ -7,6 +7,8 @@ It also contains sample server classes (dummy, Astro Electronic FS2).
 Author and Copyright of this file and of the stellarium telescope library:
 Johannes Gajdosik, 2006
 
+Astro Electronic FS2 support by Michael Butti, 2026.
+
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
@@ -44,7 +46,7 @@ public:
 	virtual bool isCommandGotoSelected(void) const {return false;}
 	virtual bool shortAnswerReceived(void) const {return false;}
 	//returns true when reading is finished
-	
+
 protected:
 	Fs2Command(Server &server);
 	TelescopeClientDirectFs2 &server;
@@ -63,7 +65,7 @@ class Fs2CommandToggleFormat : public Fs2Command
 {
 public:
 	Fs2CommandToggleFormat(Server &server) : Fs2Command(server) {}
-	
+
 private:
 	bool writeCommandToBuffer(char *&buff, char *end) override;
 	int readAnswerFromBuffer(const char*&, const char*) override {return 1;}
@@ -77,7 +79,7 @@ class Fs2CommandStopSlew : public Fs2Command
 {
 public:
 	Fs2CommandStopSlew(Server &server) : Fs2Command(server) {}
-	
+
 private:
 	bool writeCommandToBuffer(char *&buff, char *end) override;
 	int readAnswerFromBuffer(const char*&, const char*) override {return 1;}
@@ -93,7 +95,7 @@ public:
 	bool writeCommandToBuffer(char *&buff, char *end) override;
 	int readAnswerFromBuffer(const char *&buff, const char *end) override;
 	void print(QTextStream &o) const override;
-	
+
 private:
 	const int ra;
 };
@@ -106,7 +108,7 @@ public:
 	bool writeCommandToBuffer(char *&buff, char *end) override;
 	int readAnswerFromBuffer(const char *&buff, const char *end) override;
 	void print(QTextStream &o) const override;
-	
+
 private:
 	const int dec;
 };
@@ -121,7 +123,7 @@ public:
 	void print(QTextStream &o) const override;
 	bool isCommandGotoSelected(void) const override {return true;}
 	bool shortAnswerReceived(void) const override {return (first_byte != 256);}
-	
+
 private:
 	int first_byte;
 };

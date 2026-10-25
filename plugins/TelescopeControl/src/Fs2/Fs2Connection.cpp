@@ -7,6 +7,8 @@ It also contains sample server classes (dummy, Astro Electronic FS2).
 Author and Copyright of this file and of the stellarium telescope library:
 Johannes Gajdosik, 2006
 
+Astro Electronic FS2 support by Michael Butti, 2026.
+
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
@@ -120,7 +122,7 @@ void Fs2ConnectionImpl<Transport>::sendSync(unsigned int ra_int, int dec_int)
 		int ra = static_cast<int>(std::floor(0.5 + ra_int * (86400.0/4294967296.0)));
 		if (ra >= 86400)
 			ra -= 86400;
-		// sendCommand(new Fs2CommandStopSlew(this->server)); // FS2 may be problematic with this. So it's commented out. Has to be verified #TODO
+		// sendCommand(new Fs2CommandStopSlew(this->server)); // FS2 may be problematic with this. So it's commented out.
 		sendCommand(new Fs2CommandSetSelectedRa(this->server, ra));
 		sendCommand(new Fs2CommandSetSelectedDec(this->server, dec));
 		sendCommand(new Fs2CommandSyncSelected(this->server));

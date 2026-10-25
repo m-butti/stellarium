@@ -1,29 +1,31 @@
 /*
  * Stellarium Telescope Control Plug-in
- * 
+ *
  * Copyright (C) 2009 Bogdan Marinov (this file,
  * reusing code written by Johannes Gajdosik in 2006)
- * 
+ *
+ * Astro Electronic FS2 support by Michael Butti, 2026.
+ *
  * Johannes Gajdosik wrote in 2006 the original telescope control feature
  * as a core module of Stellarium. In 2009 it was significantly extended with
  * GUI features and later split as an external plug-in module by Bogdan Marinov.
- * 
- * 
+ *
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Suite 500, Boston, MA  02110-1335, USA.
  */
- 
+
 #include <QRegularExpression>
 #include <QStringList>
 
@@ -95,7 +97,7 @@ TelescopeClientDirectFs2::TelescopeClientDirectFs2 (const QString &name, const Q
 	fs2 = connection;
 	// Server owns the connection and deletes it with its socket list in Server::SocketList::clear().
 	addConnection(connection);
-	
+
 	long_format_used = false; // unknown
 	last_ra = 0;
 	queue_get_position = true;
@@ -202,7 +204,7 @@ void TelescopeClientDirectFs2::communicationResetReceived(void)
 	long_format_used = false;
 	queue_get_position = true;
 	next_pos_time = -0x8000000000000000LL;
-	
+
 #ifndef QT_NO_DEBUG
 	*log_file << Now() << "TelescopeClientDirectFs2::communicationResetReceived" << StelUtils::getEndLineChar();
 #endif
